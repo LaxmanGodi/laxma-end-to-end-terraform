@@ -49,6 +49,14 @@ Bash
 ./manage.sh destroy
 Order of Operations: The script destroys the EC2 instance first, then safely removes the S3 bucket and DynamoDB table.
 
+Note : If S3 bucket is not able to delete then execute following command:
+
+# Empty all objects and versions
+aws s3api delete-objects --bucket 616150220084-terraform-states --delete "$(aws s3api list-object-versions --bucket 616150220084-terraform-states --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' --output json)"
+
+# Now delete the bucket itself
+aws s3 rb s3://616150220084-terraform-states --force
+
 📝 Technical Deep Dive
 The "Partial Configuration" Pattern
 The main.tf file uses an empty backend "s3" {} block. This allows the same code to be used across multiple environments (Dev, QA, Prod) by simply injecting different .conf files during the init phase.
